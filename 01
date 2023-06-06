@@ -1,0 +1,13 @@
+pip install selenium
+from selenium import webdriver
+driver = webdriver.Chrome('./chromedriver')
+driver.get('https://sportscenter.fcu.edu.tw/#/reservationSpace')
+from selenium.webdriver.common.by import By
+driver.find_element(By.XPATH,"//*[@id='app']/div[1]/div[3]/a/span").click()
+driver.find_element(By.XPATH,"//*[@id='app']/div[2]/div/div/form/div[1]/input").click()
+account = driver.find_element(By.XPATH,"//*[@id='app']/div[2]/div/div/form/div[1]/input")
+account.clear()
+account.send_keys("D1126563@o365.fcu.edu.tw")
+password = driver.find_element(By.XPATH,'//*[@id="app"]/div[2]/div/div/form/div[2]/input')
+password.clear()
+password.send_keys('yongyu930416')
