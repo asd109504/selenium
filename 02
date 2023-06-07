@@ -1,0 +1,49 @@
+pip install webdriver-manager
+from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+import base64
+import requests
+time.sleep(2)
+img_base64 = driver.execute_script("""
+var ele = arguments[0];
+var cnv = document.createElement('canvas');
+cnv.width = ele.width; cnv.height = ele.height;
+cnv.getContext('2d').drawImage(ele, 0, 0);
+return cnv.toDataURL('image/jpeg').substring(22);
+""", driver.find_element(By.XPATH,'//*[@id="app"]/div[2]/div/div/form/div[3]/div/img'))
+with open("captcha_login.png", 'wb') as image:
+image.write(base64.b64decode(img_base64))
+file = {'file': open('captcha_login.png', 'rb')} #下載下來的一般驗證碼(Normal Captcha)圖片
+
+api_key = '72b0d1e4edf804dffd02f89d92362977'
+data = {
+'key': api_key,
+'method': 'post'
+}
+
+response = requests.post('http://2captcha.com/in.php', files=file, data=data)
+print(f'response:{response.text}')
+if response.ok and response.text.find('OK') > -1:
+
+captcha_id = response.text.split('|')[1]  #擷取驗證碼ID
+for i in range(10):
+    
+    response = requests.get(
+        f'http://2captcha.com/res.php?key={api_key}&action=get&id={captcha_id}')
+    print(f'response:{response.text}')
+
+    if response.text.find('CAPCHA_NOT_READY') > -1:  #尚未辨識完成
+        time.sleep(3)
+
+    elif response.text.find('OK') > -1:
+        captcha_text = response.text.split('|')[1]  #擷取辨識結果
+        
+        break
+    else:
+        print('取得驗證碼發生錯誤!')
+else:
+print('提交驗證碼發生錯誤!')
+captcha = driver.find_element(By.XPATH,'//*[@id="app"]/div[2]/div/div/form/div[3]/div/input')
+captcha.clear()
+captcha.send_keys(captcha_text)
